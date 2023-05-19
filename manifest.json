@@ -1,0 +1,20 @@
+{
+    "manifest_version": 3,
+    "name": "Log highlighted Text",
+    "description": "Log the text you highlited whil reading a webpage and export them in a text file on your local computer",
+    "version": "1.0",
+    "action": {
+        "default_popup":"popup/popup.html"
+    },
+    "permissions": ["tabs", "storage"],
+    "background":{
+        "service_worker":"service_worker.js",
+        "type": "module"
+    },
+    "content_scripts":[
+        {
+            "js":["scripts/content-script.js"],
+            "matches":["<all_urls>"]
+        }
+    ]
+}

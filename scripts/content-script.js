@@ -1,26 +1,38 @@
-// Manipulate DOM and executes when the page loads
+let arrayHighlight = []
 
-// Listener to the text selection
-document.addEventListener('mouseup', function(event) {
-    let selectedText = window.getSelection().toString()
-    if (selectedText && selectedText.trim() !== ''){
-        console.log("content-script: text not empty: " + selectedText.slice(0,10) + " ...")
-        sendSelectedTextToServiceWorker(selectedText)
+chrome.storage.local.get("highlightNotes", function(result) {
+    if(result.highlightNotes){
+        arrayHighlight = result.highlightNotes
+        console.log("Array init with data from storage")
     }
 })
 
-// Send Highlight Selected Text to Service Worker
-//async 
-function sendSelectedTextToServiceWorker(highlightSelectedText){
-    //const response = await 
-    //chrome.runtime.sendMessage({selectedText: highlightSelectedText})
-    // Envoie un message au service worker avec les données
-    console.log("content-script: sending text")
-    chrome.runtime.sendMessage({ selectedText: highlightSelectedText }, function(response) {
-        // Gérer la réponse du service worker si nécessaire
-        console.log("content-script: response from service worker :", response);
+document.addEventListener('mouseup', function(event) {
+    let selectedText = window.getSelection().toString()
+    if (selectedText && selectedText.trim() !== ''){
+        try {
+            arrayHighlight.push(selectedText)
+            saveInChromeStorage(arrayHighlight)
+            printDataFromStorage()
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+})
+
+
+function saveInChromeStorage(value){
+    chrome.storage.local.set({ highlightNotes: value }).then(() => {
+        console.log("Selected text saved")
     })
-    console.log("content-script: text was send")
-    //console.log("content-script: message with text was send")
-    //console.log(response.messageReceived)
+}
+
+
+function printDataFromStorage(){
+    chrome.storage.local.get("highlightNotes", function(result) {
+        if(result.highlightNotes){
+            console.log("Retrieved value:", result.highlightNotes)
+        }
+    })
 }

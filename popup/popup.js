@@ -1,13 +1,16 @@
 const ulEl = document.getElementById("ul-el")
+const clearAllBtn = document.getElementById("clear-all-btn")
 const refreshBtn = document.getElementById("refresh-btn")
 
-refreshBtn.addEventListener("click",
-    chrome.storage.local.get("selectedTextData", function(result) {
-        let textResults = result.selectedTextData || []
-        console.log("Data retrieve from local storage: ", textResults)
-        renderSelectedTextList(textResults)
-    })
-)
+clearAllBtn.addEventListener("click", function(){
+    console.log("popup: clear all clicked")
+    //chrome.runtime.sendMessage({ clearAll: true })
+})
+
+
+refreshBtn.addEventListener("click", function(){
+    getDataFromLocalStorage()
+})
 
 function renderSelectedTextList(arraySelectedTextData){
     let listItems = ""
@@ -18,14 +21,11 @@ function renderSelectedTextList(arraySelectedTextData){
     ulEl.innerHTML = listItems
 }
 
-// Listen for messages from the background script
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.refreshPopup) {
-        chrome.storage.local.get("selectedTextData", function(result) {
-            let textResults = result.selectedTextData || []
-            console.log("Data retrieve from local storage: ", textResults)
-            renderSelectedTextList(textResults)
-        })
-    }
-})
+function getDataFromLocalStorage(){
+    // Retrieve data from local storage
+    chrome.storage.local.get("selectedTextData", function(result) {
+        console.log("Retrieved value:", result.selectedTextData)
+        renderSelectedTextList(result.selectedTextData)
+    });
   
+}

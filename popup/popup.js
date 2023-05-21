@@ -3,60 +3,68 @@ const ulEl = document.getElementById("ul-el")
 const cbxEl = document.getElementById("cbx-el")
 const exportBtn = document.getElementById("export-btn")
 
-
+// On popup load:
+// Set list notes visibility and uncheck checkbox when popup loads
 window.onload = function() {
     ulEl.style.visibility = "collapse"
     cbxEl.checked = false
 }
 
-
+// On popup load:
+// Populate list of notes as raw objects
 chrome.storage.local.get("highlightNotes", function(result) {
     if(result.highlightNotes){
-        let arrayNotes = Object.values(result.highlightNotes)
-        counterEl.innerHTML = "Note(s) saved: " + arrayNotes.length
+        let arrayHighlightObj = JSON.parse(result.highlightNotes)
+        counterEl.innerHTML = "Note(s) saved: " + arrayHighlightObj.length
 
-        arrayNotes.forEach(note => {
+        arrayHighlightObj.forEach(noteObj => {
             let liEl = document.createElement("li")
-            liEl.appendChild(document.createTextNode(note))
+            let text = noteObj.id +"|"+noteObj.date +"|"+noteObj.url +"|"+noteObj.note +"|"
+            liEl.appendChild(document.createTextNode(text))
             ulEl.appendChild(liEl)
         })
     }
 })
 
-
+// Listen checkbox change to display note list in popup
 cbxEl.addEventListener('change', function() {
     if (this.checked) {
         ulEl.style.visibility = "visible"
     } else {
-        ulEl.style.visibility = "collapse" //hidden
+        ulEl.style.visibility = "collapse"
     }
 })
 
-
+// Listen export button click
 exportBtn.addEventListener("click", function(){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
-            let arrayNotes = Object.values(result.highlightNotes)
-            saveFile("test.txt", arrayNotes)
+            let arrayNotes = JSON.parse(result.highlightNotes)
+            let contentString = ""
+            arrayNotes.forEach(note => {
+                console.log(note)
+                contentString += JSON.stringify(note) + "\n"
+            })
+            saveFile("test.txt", contentString)
         }
     }) 
 })
 
-
+/**
+ * Download file in local
+ * @param {string} filename 
+ * @param {string} content 
+ */
 function saveFile(filename, content) {
     // Create a Blob object with the file content
-    const blob = new Blob([content], { type: 'text/plain' });
-  
+    const blob = new Blob([content], { type: 'text/plain' })
     // Create a temporary link element
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-  
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
     // Set the filename for the downloaded file
-    link.download = filename;
-  
+    link.download = filename
     // Programmatically click the link to trigger the download
-    link.click();
-  
+    link.click()
     // Clean up the URL object
-    URL.revokeObjectURL(link.href);
+    URL.revokeObjectURL(link.href)
 }

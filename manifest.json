@@ -6,7 +6,7 @@
     "action": {
         "default_popup":"popup/popup.html"
     },
-    "permissions": ["tabs", "storage"],
+    "permissions": ["tabs", "storage","activeTab"],
     "background":{
         "service_worker":"service-worker.js",
         "type": "module"

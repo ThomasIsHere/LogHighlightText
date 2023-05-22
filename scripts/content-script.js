@@ -1,7 +1,5 @@
 let arrayHighlightObj = []
-let currentUrl = ""
-
-console.log("Current page URL:", currentUrl);
+//let currentUrl = ""
 
 /*
 On page load:
@@ -15,13 +13,12 @@ chrome.storage.local.get("highlightNotes", function(result) {
 })
 
 // Get the current URL on page what creation or activation
-//const port = chrome.runtime.connect()
-//console.log(port)
-//port.postMessage("getTabUrl")
-//port.onMessage.addListener((url) => {
-//    currentUrl = url
-//    console.log("Current tab URL:", url)
-//})
+/*const port = chrome.runtime.connect()
+port.postMessage("getTabUrl")
+port.onMessage.addListener((url) => {
+    currentUrl = url
+    console.log("Current tab URL:", currentUrl)
+})*/
 
 
 // When text is highlight it's saved in array and pass to the storage
@@ -32,7 +29,7 @@ document.addEventListener('mouseup', function(event) {
             let newObjToSave = {
                 id:generateUniqueId(),
                 date: new Date,
-                url:currentUrl,
+                url:""/*currentUrl*/,
                 note:selectedText
             }
             arrayHighlightObj.push(newObjToSave)

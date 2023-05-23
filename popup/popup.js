@@ -5,25 +5,10 @@ const exportBtn = document.getElementById("export-btn")
 
 // On popup load:
 // Set list notes visibility and uncheck checkbox when popup loads
-window.onload = function() {
-    ulEl.style.visibility = "collapse"
-    cbxEl.checked = false
-}
-
-// On popup load:
-// Populate list of notes as raw objects
-chrome.storage.local.get("highlightNotes", function(result) {
-    if(result.highlightNotes){
-        let arrayHighlightObj = JSON.parse(result.highlightNotes)
-        counterEl.innerHTML = "Note(s) saved: " + arrayHighlightObj.length
-
-        arrayHighlightObj.forEach(noteObj => {
-            let liEl = document.createElement("li")
-            let text = noteObj.id +"|"+noteObj.date +"|"+noteObj.url +"|"+noteObj.note +"|"
-            liEl.appendChild(document.createTextNode(text))
-            ulEl.appendChild(liEl)
-        })
-    }
+// And populate list of notes as raw objects
+chrome.tabs.query({active: true}, (tabs) => {
+    setCheckboxAndListVisibility()
+    renderNoteList()
 })
 
 // Listen checkbox change to display note list in popup
@@ -67,4 +52,33 @@ function saveFile(filename, content) {
     link.click()
     // Clean up the URL object
     URL.revokeObjectURL(link.href)
+}
+
+/**
+ * Set checkbox and list visibility
+ */
+function setCheckboxAndListVisibility(){
+    ulEl.style.visibility = "collapse"
+    cbxEl.checked = false
+}
+
+/**
+ * Render list of notes
+ */
+function renderNoteList(){
+    chrome.storage.local.get("highlightNotes", function(result) {
+        if(result.highlightNotes){
+            let arrayHighlightObj = JSON.parse(result.highlightNotes)
+            counterEl.innerHTML = "Note(s) saved: " + arrayHighlightObj.length
+
+            arrayHighlightObj.forEach(noteObj => {
+                let liEl = document.createElement("li")
+                let text = noteObj.id +"|"+noteObj.date +"|"+noteObj.url +"|"+noteObj.note +"|"
+                liEl.appendChild(document.createTextNode(text))
+                ulEl.appendChild(liEl)
+            })
+        }else{
+            counterEl.innerHTML = "No note saved"
+        }
+    })
 }

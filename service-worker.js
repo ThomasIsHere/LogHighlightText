@@ -1,3 +1,8 @@
+// On installed set extension state value to off
+chrome.runtime.onInstalled.addListener(details => {
+    chrome.storage.local.set({state: 'off'})
+})
+
 // Initialize current url empty
 let currentUrl = ""
 
@@ -11,7 +16,7 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 // Set current url when tab is activated (user moves into it)
 chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, (tab) => {
-        currentUrl = tab.url;
+        currentUrl = tab.url
     })
 })
 
@@ -22,27 +27,32 @@ if(getArrayNotesFromLocalStorage()){
 }
 
 // Listener of message note send from content-script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.messageNote) {
-        try {
-            let newObjToSave = {
-                id:generateUniqueId(),
-                date: new Date,
-                url: currentUrl,
-                note:message.messageNote
+chrome.runtime.onConnect.addListener((port) => {
+    console.log("Connected to port:", port);
+    port.onMessage.addListener((message) => {
+        if (message.type === "saveNote") {
+            try {
+                let newObjToSave = {
+                    id:generateUniqueId(),
+                    date: new Date,
+                    url: currentUrl,
+                    note:message.value
+                }
+                arrayHighlightObj.push(newObjToSave)
+                console.log(arrayHighlightObj)
+                saveInChromeStorage(arrayHighlightObj)
+                printDataFromStorage()
+            } catch (error) {
+                console.log(error)
             }
-            arrayHighlightObj.push(newObjToSave)
-            console.log(arrayHighlightObj)
-            saveInChromeStorage(arrayHighlightObj)
-            printDataFromStorage()
-            sendResponse({messageReceived : true})
-        } catch (error) {
-            console.log(error)
-            sendResponse({messageReceived : false})
         }
-    }
+    })
+    // Handle disconnection
+    port.onDisconnect.addListener(() => {
+        console.log("Port disconnected")
+    })
 })
-
+  
 /**
  * Save array in storage as JSON string
  * @param {array} value 

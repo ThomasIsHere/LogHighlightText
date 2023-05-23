@@ -1,7 +1,10 @@
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
-const cbxEl = document.getElementById("cbx-el")
+const cbxElDisplay = document.getElementById("cbx-el-display")
 const exportBtn = document.getElementById("export-btn")
+const cbxOnOff = document.getElementById("cbx-on-off")
+
+
 
 // On popup load:
 // Set list notes visibility and uncheck checkbox when popup loads
@@ -11,8 +14,37 @@ chrome.tabs.query({active: true}, (tabs) => {
     renderNoteList()
 })
 
+// On load check state of the extension to turn extension on or off
+chrome.storage.local.get('state', function(data) {
+    if (data.state === 'on') {
+        cbxElDisplay.disabled = false
+        exportBtn.disabled = false
+        cbxOnOff.checked = true
+    } else { // off or undefined
+        cbxElDisplay.disabled = true
+        exportBtn.disabled = true
+        cbxOnOff.checked = false
+    }
+})
+
+// Listen on off button
+cbxOnOff.addEventListener('change', function() {
+    chrome.storage.local.get('state', function(data) {
+        if (data.state === 'on') {
+            chrome.storage.local.set({state: 'off'})
+            cbxElDisplay.disabled = true
+            exportBtn.disabled = true
+        } else {
+            chrome.storage.local.set({state: 'on'})
+            cbxElDisplay.disabled = false
+            exportBtn.disabled = false
+            console.log(data.state)
+        }
+    })
+})
+
 // Listen checkbox change to display note list in popup
-cbxEl.addEventListener('change', function() {
+cbxElDisplay.addEventListener('change', function() {
     if (this.checked) {
         ulEl.style.visibility = "visible"
     } else {
@@ -59,7 +91,7 @@ function saveFile(filename, content) {
  */
 function setCheckboxAndListVisibility(){
     ulEl.style.visibility = "collapse"
-    cbxEl.checked = false
+    cbxElDisplay.checked = false
 }
 
 /**
@@ -73,7 +105,7 @@ function renderNoteList(){
 
             arrayHighlightObj.forEach(noteObj => {
                 let liEl = document.createElement("li")
-                let text = noteObj.id +"|"+noteObj.date +"|"+noteObj.url +"|"+noteObj.note +"|"
+                let text = noteObj.note //noteObj.id +"|"+noteObj.date +"|"+noteObj.url +"|"+noteObj.note +"|"
                 liEl.appendChild(document.createTextNode(text))
                 ulEl.appendChild(liEl)
             })

@@ -3,8 +3,7 @@ const ulEl = document.getElementById("ul-el")
 const cbxElDisplay = document.getElementById("cbx-el-display")
 const exportBtn = document.getElementById("export-btn")
 const cbxOnOff = document.getElementById("cbx-on-off")
-
-
+const clearBth = document.getElementById("clear-notes-btn")
 
 // On popup load:
 // Set list notes visibility and uncheck checkbox when popup loads
@@ -16,6 +15,7 @@ chrome.tabs.query({active: true}, (tabs) => {
 
 // On load check state of the extension to turn extension on or off
 chrome.storage.local.get('state', function(data) {
+    console.log('On Load data.state: ', data.state)
     if (data.state === 'on') {
         cbxElDisplay.disabled = false
         exportBtn.disabled = false
@@ -30,15 +30,17 @@ chrome.storage.local.get('state', function(data) {
 // Listen on off button
 cbxOnOff.addEventListener('change', function() {
     chrome.storage.local.get('state', function(data) {
+        console.log('Checkbox data.state: ', data.state)
         if (data.state === 'on') {
             chrome.storage.local.set({state: 'off'})
             cbxElDisplay.disabled = true
             exportBtn.disabled = true
+            console.log('set data.state to off')
         } else {
             chrome.storage.local.set({state: 'on'})
             cbxElDisplay.disabled = false
             exportBtn.disabled = false
-            console.log(data.state)
+            console.log('set data.state to on')
         }
     })
 })
@@ -65,6 +67,20 @@ exportBtn.addEventListener("click", function(){
             saveFile("test.txt", contentString)
         }
     }) 
+})
+
+// Listen clear notes button click
+clearBth.addEventListener("click", function(){
+    chrome.storage.local.remove(["highlightNotes"],function(){
+        var error = chrome.runtime.lastError
+           if (error) {
+               console.error(error)
+           }
+    })
+
+    sendMessageToEmptyNotesArrayToServiceWorker()
+
+    renderNoteList()  
 })
 
 /**
@@ -111,6 +127,17 @@ function renderNoteList(){
             })
         }else{
             counterEl.innerHTML = "No note saved"
+            ulEl.innerHTML = ""
         }
     })
+}
+
+/**
+ * Send message to empty the array of notes from service worker in order to clear notes everywhere
+ */
+function sendMessageToEmptyNotesArrayToServiceWorker(){
+    const port = chrome.runtime.connect({ name: "logNotesPort" })
+    port.postMessage({type : "clearNotes"})
+    port.disconnect()
+    console.log("Notes cleared")
 }

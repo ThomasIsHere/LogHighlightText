@@ -28,7 +28,7 @@ if(getArrayNotesFromLocalStorage()){
 
 // Listener of message note send from content-script
 chrome.runtime.onConnect.addListener((port) => {
-    console.log("Connected to port:", port);
+    console.log("Connected to port:", port)
     port.onMessage.addListener((message) => {
         if (message.type === "saveNote") {
             try {
@@ -45,6 +45,8 @@ chrome.runtime.onConnect.addListener((port) => {
             } catch (error) {
                 console.log(error)
             }
+        } else if (message.type === "clearNotes") {
+            arrayHighlightObj.length = 0
         }
     })
     // Handle disconnection

@@ -62,13 +62,14 @@ cbxOnOff.addEventListener('change', function() {
 exportBtn.addEventListener("click", function(){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
-            let arrayNotes = JSON.parse(result.highlightNotes)
+            /*let arrayNotes = JSON.parse(result.highlightNotes)
             let contentString = ""
             arrayNotes.forEach(note => {
                 console.log(note)
                 contentString += JSON.stringify(note) + "\n"
-            })
-            saveFile("test.txt", contentString)
+            })*/
+            let date = new Date(Date.now())
+            saveFile(date.toLocaleDateString() + "_" + date.toLocaleTimeString() + "_notes.txt", JSON.stringify(JSON.parse(result.highlightNotes), null, 2))
         }
     }) 
 })

@@ -62,6 +62,7 @@ chrome.runtime.onConnect.addListener((port) => {
 function saveInChromeStorage(value){
     chrome.storage.local.set({ highlightNotes: JSON.stringify(value) }).then(() => {
         console.log("Selected text saved")
+        sendRefreshMessageToPopup()
     })
 }
 
@@ -100,4 +101,13 @@ function getArrayNotesFromLocalStorage(){
             return JSON.parse(result.highlightNotes)
         }
     })
+}
+
+// Send request to popup to refresh
+// To be used when note is created
+function sendRefreshMessageToPopup(){
+    const port = chrome.runtime.connect({ name: "logNotesPort" })
+    port.postMessage({type : "refreshPopup"})
+    port.disconnect()
+    console.log("refresh message sent to popup")
 }

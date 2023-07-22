@@ -1,6 +1,6 @@
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
-const cbxElDisplay = document.getElementById("cbx-el-display")
+//const cbxElDisplay = document.getElementById("cbx-el-display")
 const exportBtn = document.getElementById("export-btn")
 const cbxOnOff = document.getElementById("cbx-on-off")
 const clearBth = document.getElementById("clear-notes-btn")
@@ -9,7 +9,7 @@ const clearBth = document.getElementById("clear-notes-btn")
 // Set list notes visibility and uncheck checkbox when popup loads
 // And populate list of notes as raw objects
 chrome.tabs.query({active: true}, (tabs) => {
-    setCheckboxAndListVisibility()
+    //setCheckboxAndListVisibility()
     renderNoteList()
 })
 
@@ -17,12 +17,14 @@ chrome.tabs.query({active: true}, (tabs) => {
 chrome.storage.local.get('state', function(data) {
     console.log('On Load data.state: ', data.state)
     if (data.state === 'on') {
-        cbxElDisplay.disabled = false
+        //cbxElDisplay.disabled = false
         exportBtn.disabled = false
+        clearBth.disabled = false
         cbxOnOff.checked = true
     } else { // off or undefined
-        cbxElDisplay.disabled = true
+        //cbxElDisplay.disabled = true
         exportBtn.disabled = true
+        clearBth.disabled = true
         cbxOnOff.checked = false
     }
 })
@@ -33,26 +35,28 @@ cbxOnOff.addEventListener('change', function() {
         console.log('Checkbox data.state: ', data.state)
         if (data.state === 'on') {
             chrome.storage.local.set({state: 'off'})
-            cbxElDisplay.disabled = true
+            //cbxElDisplay.disabled = true
             exportBtn.disabled = true
+            clearBth.disabled = true
             console.log('set data.state to off')
         } else {
             chrome.storage.local.set({state: 'on'})
-            cbxElDisplay.disabled = false
+            //cbxElDisplay.disabled = false
             exportBtn.disabled = false
+            clearBth.disabled = false
             console.log('set data.state to on')
         }
     })
 })
 
 // Listen checkbox change to display note list in popup
-cbxElDisplay.addEventListener('change', function() {
+/*cbxElDisplay.addEventListener('change', function() {
     if (this.checked) {
         ulEl.style.visibility = "visible"
     } else {
         ulEl.style.visibility = "collapse"
     }
-})
+})*/
 
 // Listen export button click
 exportBtn.addEventListener("click", function(){
@@ -103,12 +107,12 @@ function saveFile(filename, content) {
 }
 
 /**
- * Set checkbox and list visibility
+ * Set checkbox "display" and "notes list" visibility
  */
-function setCheckboxAndListVisibility(){
+/*function setCheckboxAndListVisibility(){
     ulEl.style.visibility = "collapse"
     cbxElDisplay.checked = false
-}
+}*/
 
 /**
  * Render list of notes
@@ -121,9 +125,15 @@ function renderNoteList(){
 
             arrayHighlightObj.forEach(noteObj => {
                 let liEl = document.createElement("li")
-                let text = noteObj.note //noteObj.id +"|"+noteObj.date +"|"+noteObj.url +"|"+noteObj.note +"|"
+                let text = ""
+                if(noteObj.note.length > 50){
+                    text = noteObj.note.substring(0, 50) + " ..."
+                } else {
+                    text = noteObj.note
+                }
                 liEl.appendChild(document.createTextNode(text))
                 ulEl.appendChild(liEl)
+                ulEl.style.visibility = "visible"
             })
         }else{
             counterEl.innerHTML = "No note saved"
@@ -141,3 +151,18 @@ function sendMessageToEmptyNotesArrayToServiceWorker(){
     port.disconnect()
     console.log("Notes cleared")
 }
+
+// Listener of message send from service-worker
+chrome.runtime.onConnect.addListener((port) => {
+    console.log("Connected to port:", port)
+    port.onMessage.addListener((message) => {
+        if (message.type === "refreshPopup") {
+            console.log('Request popup refresh')
+            renderNoteList()
+        }
+    })
+    // Handle disconnection
+    port.onDisconnect.addListener(() => {
+        console.log("Port disconnected")
+    })
+})

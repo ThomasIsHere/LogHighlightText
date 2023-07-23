@@ -18,5 +18,4 @@ function sendNoteToServiceWorker(note){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "saveNote", value : note})
     port.disconnect()
-    console.log("note saved")
 }

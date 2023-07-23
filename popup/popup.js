@@ -9,24 +9,36 @@ const clearBth = document.getElementById("clear-notes-btn")
 // On popup load:
 // Set list notes visibility and uncheck checkbox when popup loads
 // And populate list of notes as raw objects
-chrome.tabs.query({active: true}, (tabs) => {
+//chrome.tabs.query({active: true}, (tabs) => {
     //setCheckboxAndListVisibility()
-    renderNoteList()
-})
+    //renderNoteList()
+//})
+
+// On popup js script load render note list and notes count
+renderNoteList()
 
 // On load check state of the extension to turn extension on or off
 chrome.storage.local.get('state', function(data) {
-    console.log('On Load data.state: ', data.state)
     if (data.state === 'on') {
         //cbxElDisplay.disabled = false
         exportBtn.disabled = false
         clearBth.disabled = false
+
+        const buttons = ulEl.querySelectorAll("button")
+        buttons.forEach((button) => {button.disabled = false})
+        
         cbxOnOff.checked = true
         lblOnOff.innerText = "On"
     } else { // off or undefined
         //cbxElDisplay.disabled = true
         exportBtn.disabled = true
         clearBth.disabled = true
+
+        const buttons = ulEl.querySelectorAll("button")
+        buttons.forEach((button) => {
+            button.disabled = true
+        })
+
         cbxOnOff.checked = false
         lblOnOff.innerText = "Off"
     }
@@ -35,21 +47,26 @@ chrome.storage.local.get('state', function(data) {
 // Listen on off button
 cbxOnOff.addEventListener('change', function() {
     chrome.storage.local.get('state', function(data) {
-        console.log('Checkbox data.state: ', data.state)
         if (data.state === 'on') {
             chrome.storage.local.set({state: 'off'})
             //cbxElDisplay.disabled = true
             exportBtn.disabled = true
             clearBth.disabled = true
+
+            const buttons = ulEl.querySelectorAll("button")
+            buttons.forEach((button) => {button.disabled = true})
+
             lblOnOff.innerText = "Off"
-            console.log('set data.state to off')
         } else {
             chrome.storage.local.set({state: 'on'})
             //cbxElDisplay.disabled = false
             exportBtn.disabled = false
             clearBth.disabled = false
+            
+            const buttons = ulEl.querySelectorAll("button")
+            buttons.forEach((button) => {button.disabled = false})
+
             lblOnOff.innerText = "On"
-            console.log('set data.state to on')
         }
     })
 })
@@ -131,14 +148,27 @@ function renderNoteList(){
 
             arrayHighlightObj.forEach(noteObj => {
                 let liEl = document.createElement("li")
-                liEl.classList.add("list-group-item") //Boostrap li class
+                liEl.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-start") //Boostrap li class
                 let text = ""
                 if(noteObj.note.length > 50){
                     text = noteObj.note.substring(0, 50) + " ..."
                 } else {
                     text = noteObj.note
                 }
+
+                // Add delete button to li
+                const delBtnEl = document.createElement("button")
+                delBtnEl.classList.add("btn", "btn-outline-danger", "btn-sm")
+                delBtnEl.appendChild(document.createTextNode("Del"))
+
+                delBtnEl.addEventListener("click", function(){
+                    deleteOneNote(noteObj.id)
+                    sendMessageToServiceWorkerToRefreshNoteList()
+                })
+
                 liEl.appendChild(document.createTextNode(text))
+                liEl.appendChild(delBtnEl)
+
                 ulEl.appendChild(liEl)
                 ulEl.style.visibility = "visible"
             })
@@ -149,6 +179,27 @@ function renderNoteList(){
     })
 }
 
+function deleteOneNote(noteId){
+    chrome.storage.local.get("highlightNotes", function(result) {
+        arrayHighlightObj = JSON.parse(result.highlightNotes)
+        console.log("BEFORE", arrayHighlightObj)
+        for (let i = 0; i < arrayHighlightObj.length; i++) {
+            if (arrayHighlightObj[i].id === noteId) {
+                console.log("TO DELETE", arrayHighlightObj[i])
+                arrayHighlightObj.splice(i, 1)
+                break
+            }
+        }
+        console.log("AFTER", arrayHighlightObj)
+    })
+}
+
+function sendMessageToServiceWorkerToRefreshNoteList(){
+    const port = chrome.runtime.connect({ name: "logNotesPort" })
+    port.postMessage({type : "refreshNoteList"})
+    port.disconnect()
+}
+
 /**
  * Send message to empty the array of notes from service worker in order to clear notes everywhere
  */
@@ -156,20 +207,15 @@ function sendMessageToEmptyNotesArrayToServiceWorker(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "clearNotes"})
     port.disconnect()
-    console.log("Notes cleared")
 }
 
 // Listener of message send from service-worker
 chrome.runtime.onConnect.addListener((port) => {
-    console.log("Connected to port:", port)
     port.onMessage.addListener((message) => {
         if (message.type === "refreshPopup") {
-            console.log('Request popup refresh')
             renderNoteList()
         }
     })
     // Handle disconnection
-    port.onDisconnect.addListener(() => {
-        console.log("Port disconnected")
-    })
+    port.onDisconnect.addListener(() => {})
 })

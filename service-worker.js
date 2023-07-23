@@ -28,7 +28,6 @@ if(getArrayNotesFromLocalStorage()){
 
 // Listener of message note send from content-script
 chrome.runtime.onConnect.addListener((port) => {
-    console.log("Connected to port:", port)
     port.onMessage.addListener((message) => {
         if (message.type === "saveNote") {
             try {
@@ -47,12 +46,12 @@ chrome.runtime.onConnect.addListener((port) => {
             }
         } else if (message.type === "clearNotes") {
             arrayHighlightObj.length = 0
+        } else if (message.type === "refreshNoteList") {
+            // To be done
         }
     })
     // Handle disconnection
-    port.onDisconnect.addListener(() => {
-        console.log("Port disconnected")
-    })
+    port.onDisconnect.addListener(() => {})
 })
   
 /**
@@ -61,7 +60,6 @@ chrome.runtime.onConnect.addListener((port) => {
  */
 function saveInChromeStorage(value){
     chrome.storage.local.set({ highlightNotes: JSON.stringify(value) }).then(() => {
-        console.log("Selected text saved")
         sendRefreshMessageToPopup()
     })
 }
@@ -97,7 +95,6 @@ function generateUniqueId() {
 function getArrayNotesFromLocalStorage(){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
-            console.log("returnArrayNotesFromLocalStorage")
             return JSON.parse(result.highlightNotes)
         }
     })
@@ -109,5 +106,4 @@ function sendRefreshMessageToPopup(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "refreshPopup"})
     port.disconnect()
-    console.log("refresh message sent to popup")
 }

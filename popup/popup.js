@@ -3,6 +3,7 @@ const ulEl = document.getElementById("ul-el")
 //const cbxElDisplay = document.getElementById("cbx-el-display")
 const exportBtn = document.getElementById("export-btn")
 const cbxOnOff = document.getElementById("cbx-on-off")
+const lblOnOff = document.getElementById("lbl-on-off")
 const clearBth = document.getElementById("clear-notes-btn")
 
 // On popup load:
@@ -21,11 +22,13 @@ chrome.storage.local.get('state', function(data) {
         exportBtn.disabled = false
         clearBth.disabled = false
         cbxOnOff.checked = true
+        lblOnOff.innerText = "On"
     } else { // off or undefined
         //cbxElDisplay.disabled = true
         exportBtn.disabled = true
         clearBth.disabled = true
         cbxOnOff.checked = false
+        lblOnOff.innerText = "Off"
     }
 })
 
@@ -38,12 +41,14 @@ cbxOnOff.addEventListener('change', function() {
             //cbxElDisplay.disabled = true
             exportBtn.disabled = true
             clearBth.disabled = true
+            lblOnOff.innerText = "Off"
             console.log('set data.state to off')
         } else {
             chrome.storage.local.set({state: 'on'})
             //cbxElDisplay.disabled = false
             exportBtn.disabled = false
             clearBth.disabled = false
+            lblOnOff.innerText = "On"
             console.log('set data.state to on')
         }
     })
@@ -126,6 +131,7 @@ function renderNoteList(){
 
             arrayHighlightObj.forEach(noteObj => {
                 let liEl = document.createElement("li")
+                liEl.classList.add("list-group-item") //Boostrap li class
                 let text = ""
                 if(noteObj.note.length > 50){
                     text = noteObj.note.substring(0, 50) + " ..."

@@ -1,26 +1,41 @@
 <html>
     <head>
         <link rel="stylesheet" href="popup.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     </head>
     <body>
-        <div>
-            <h1 id="counter-el"></h1>
+        <div class="container-fluid">
+            <div class="row my-1">
+                <h6 id="counter-el"></h6>
+            </div>
+
+            <div class="row my-1">
+                <div class="col-4">
+                    <div class="form-check form-switch">
+                        <input id="cbx-on-off" type="checkbox" role="switch" name="cbx-turn-on-off" class="form-check-input">
+                        <label id="lbl-on-off" for="cbx-on-off" class="form-check-label">On or Off</label>
+                    </div>
+                </div>
+                <!--label for="cbx-display-list">Display list:</label>
+                <input id="cbx-el-display" type="checkbox" name="cbx-display-list"-->
+                <div class="col-4">
+                    <button id="export-btn" type="button" class="btn btn btn-outline-secondary btn-sm">Export</button>
+                </div>
+                <div class="col-4">
+                    <button id="clear-notes-btn" type="button" class="btn btn-outline-danger btn-sm">Clear</button>
+                </div>
+            </div>
         </div>
 
-        <div>
-            <label for="cbx-turn-on-off">Activate:</label>
-            <input id="cbx-on-off" type="checkbox" name="cbx-turn-on-off">
-            <!--label for="cbx-display-list">Display list:</label>
-            <input id="cbx-el-display" type="checkbox" name="cbx-display-list"-->
-
-            <button id="export-btn">Export notes</button>
-            <button id="clear-notes-btn">Clear notes</button>
-        </div>
-
-        <div>
-            <ul id="ul-el"></ul>
+        <div class="container-fluid">
+            <div class="row my-1">
+                <div class="col">
+                    <ul id="ul-el" class="list-group"></ul>
+                </div>
+            </div>
         </div>
 
         <script src="popup.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     </body>
 </html>

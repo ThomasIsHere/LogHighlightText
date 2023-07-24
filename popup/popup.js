@@ -1,26 +1,18 @@
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
-//const cbxElDisplay = document.getElementById("cbx-el-display")
 const exportBtn = document.getElementById("export-btn")
 const cbxOnOff = document.getElementById("cbx-on-off")
 const lblOnOff = document.getElementById("lbl-on-off")
 const clearBth = document.getElementById("clear-notes-btn")
 
-// On popup load:
-// Set list notes visibility and uncheck checkbox when popup loads
-// And populate list of notes as raw objects
-//chrome.tabs.query({active: true}, (tabs) => {
-    //setCheckboxAndListVisibility()
-    //renderNoteList()
-//})
 
 // On popup js script load render note list and notes count
 renderNoteList()
 
+
 // On load check state of the extension to turn extension on or off
 chrome.storage.local.get('state', function(data) {
     if (data.state === 'on') {
-        //cbxElDisplay.disabled = false
         exportBtn.disabled = false
         clearBth.disabled = false
 
@@ -30,7 +22,6 @@ chrome.storage.local.get('state', function(data) {
         cbxOnOff.checked = true
         lblOnOff.innerText = "On"
     } else { // off or undefined
-        //cbxElDisplay.disabled = true
         exportBtn.disabled = true
         clearBth.disabled = true
 
@@ -44,12 +35,12 @@ chrome.storage.local.get('state', function(data) {
     }
 })
 
+
 // Listen on off button
 cbxOnOff.addEventListener('change', function() {
     chrome.storage.local.get('state', function(data) {
         if (data.state === 'on') {
             chrome.storage.local.set({state: 'off'})
-            //cbxElDisplay.disabled = true
             exportBtn.disabled = true
             clearBth.disabled = true
 
@@ -59,7 +50,6 @@ cbxOnOff.addEventListener('change', function() {
             lblOnOff.innerText = "Off"
         } else {
             chrome.storage.local.set({state: 'on'})
-            //cbxElDisplay.disabled = false
             exportBtn.disabled = false
             clearBth.disabled = false
             
@@ -71,30 +61,17 @@ cbxOnOff.addEventListener('change', function() {
     })
 })
 
-// Listen checkbox change to display note list in popup
-/*cbxElDisplay.addEventListener('change', function() {
-    if (this.checked) {
-        ulEl.style.visibility = "visible"
-    } else {
-        ulEl.style.visibility = "collapse"
-    }
-})*/
 
 // Listen export button click
 exportBtn.addEventListener("click", function(){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
-            /*let arrayNotes = JSON.parse(result.highlightNotes)
-            let contentString = ""
-            arrayNotes.forEach(note => {
-                console.log(note)
-                contentString += JSON.stringify(note) + "\n"
-            })*/
             let date = new Date(Date.now())
             saveFile(date.toLocaleDateString() + "_" + date.toLocaleTimeString() + "_notes.txt", JSON.stringify(JSON.parse(result.highlightNotes), null, 2))
         }
     }) 
 })
+
 
 // Listen clear notes button click
 clearBth.addEventListener("click", function(){
@@ -109,6 +86,7 @@ clearBth.addEventListener("click", function(){
 
     renderNoteList()  
 })
+
 
 /**
  * Download file in local
@@ -129,13 +107,6 @@ function saveFile(filename, content) {
     URL.revokeObjectURL(link.href)
 }
 
-/**
- * Set checkbox "display" and "notes list" visibility
- */
-/*function setCheckboxAndListVisibility(){
-    ulEl.style.visibility = "collapse"
-    cbxElDisplay.checked = false
-}*/
 
 /**
  * Render list of notes
@@ -179,6 +150,7 @@ function renderNoteList(){
     })
 }
 
+
 function deleteOneNote(noteId){
     chrome.storage.local.get("highlightNotes", function(result) {
         arrayHighlightObj = JSON.parse(result.highlightNotes)
@@ -194,11 +166,13 @@ function deleteOneNote(noteId){
     })
 }
 
+
 function sendMessageToServiceWorkerToRefreshNoteList(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "refreshNoteList"})
     port.disconnect()
 }
+
 
 /**
  * Send message to empty the array of notes from service worker in order to clear notes everywhere
@@ -208,6 +182,7 @@ function sendMessageToEmptyNotesArrayToServiceWorker(){
     port.postMessage({type : "clearNotes"})
     port.disconnect()
 }
+
 
 // Listener of message send from service-worker
 chrome.runtime.onConnect.addListener((port) => {

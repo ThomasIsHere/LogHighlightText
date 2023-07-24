@@ -10,6 +10,7 @@ document.addEventListener('mouseup', function(event) {
     })
 })
 
+
 /**
  * Send note to service worker
  * @param {string} note 

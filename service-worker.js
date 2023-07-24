@@ -3,8 +3,10 @@ chrome.runtime.onInstalled.addListener(details => {
     chrome.storage.local.set({state: 'off'})
 })
 
+
 // Initialize current url empty
 let currentUrl = ""
+
 
 // Set current url when tab is first loaded
 chrome.webNavigation.onCommitted.addListener(function(details) {
@@ -12,7 +14,8 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
         currentUrl = details.url
     }
 });
-  
+
+
 // Set current url when tab is activated (user moves into it)
 chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, (tab) => {
@@ -20,11 +23,13 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     })
 })
 
+
 // Initialize Array of notes (empty if no notes saved or populate with data from local storage)
 let arrayHighlightObj = []
 if(getArrayNotesFromLocalStorage()){
     arrayHighlightObj = getArrayNotesFromLocalStorage()
 }
+
 
 // Listener of message note send from content-script
 chrome.runtime.onConnect.addListener((port) => {
@@ -53,7 +58,8 @@ chrome.runtime.onConnect.addListener((port) => {
     // Handle disconnection
     port.onDisconnect.addListener(() => {})
 })
-  
+
+
 /**
  * Save array in storage as JSON string
  * @param {array} value 
@@ -63,6 +69,7 @@ function saveInChromeStorage(value){
         sendRefreshMessageToPopup()
     })
 }
+
 
 /**
  * Test function to print storage content
@@ -74,6 +81,7 @@ function printDataFromStorage(){
         }
     })
 }
+
 
 /**
  * Manually generate unique id
@@ -88,6 +96,7 @@ function generateUniqueId() {
     return uniqueId;
 }
 
+
 /**
  * Returns array of notes from local storage
  * @returns arrayNotes
@@ -99,6 +108,7 @@ function getArrayNotesFromLocalStorage(){
         }
     })
 }
+
 
 // Send request to popup to refresh
 // To be used when note is created

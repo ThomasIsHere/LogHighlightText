@@ -67,7 +67,8 @@ exportBtn.addEventListener("click", function(){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
             let date = new Date(Date.now())
-            saveFile(date.toLocaleDateString() + "_" + date.toLocaleTimeString() + "_notes.txt", JSON.stringify(JSON.parse(result.highlightNotes), null, 2))
+            strToPrint = notesArrayToPrint(JSON.parse(result.highlightNotes))
+            saveFile(date.toLocaleDateString() + "_" + date.toLocaleTimeString() + "_notes.txt", strToPrint)
         }
     }) 
 })
@@ -128,17 +129,17 @@ function renderNoteList(){
                 }
 
                 // Add delete button to li
-                const delBtnEl = document.createElement("button")
+                /*const delBtnEl = document.createElement("button")
                 delBtnEl.classList.add("btn", "btn-outline-danger", "btn-sm")
                 delBtnEl.appendChild(document.createTextNode("Del"))
 
                 delBtnEl.addEventListener("click", function(){
                     deleteOneNote(noteObj.id)
                     sendMessageToServiceWorkerToRefreshNoteList()
-                })
+                })*/
 
                 liEl.appendChild(document.createTextNode(text))
-                liEl.appendChild(delBtnEl)
+                //liEl.appendChild(delBtnEl)
 
                 ulEl.appendChild(liEl)
                 ulEl.style.visibility = "visible"
@@ -151,7 +152,7 @@ function renderNoteList(){
 }
 
 
-function deleteOneNote(noteId){
+/*function deleteOneNote(noteId){
     chrome.storage.local.get("highlightNotes", function(result) {
         arrayHighlightObj = JSON.parse(result.highlightNotes)
         console.log("BEFORE", arrayHighlightObj)
@@ -164,7 +165,7 @@ function deleteOneNote(noteId){
         }
         console.log("AFTER", arrayHighlightObj)
     })
-}
+}*/
 
 
 function sendMessageToServiceWorkerToRefreshNoteList(){
@@ -194,3 +195,15 @@ chrome.runtime.onConnect.addListener((port) => {
     // Handle disconnection
     port.onDisconnect.addListener(() => {})
 })
+
+
+function notesArrayToPrint(arrayJson){
+    let strToPrint = ""
+    for(let i=0; i<arrayJson.length; i++){
+        let siteName = arrayJson[i].url.split('/')[2]
+        strToPrint = strToPrint + siteName + '\n'
+        strToPrint = strToPrint + '-'.repeat(siteName.length) + '\n'
+        strToPrint = strToPrint + arrayJson[i].note + '\n\n'
+    }
+    return strToPrint
+}

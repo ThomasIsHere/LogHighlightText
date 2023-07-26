@@ -15,25 +15,9 @@ renderNoteList()
 // On load check state of the extension to turn extension on or off
 chrome.storage.local.get('state', function(data) {
     if (data.state === 'on') {
-        exportBtn.disabled = false
-        clearBth.disabled = false
-
-        const buttons = ulEl.querySelectorAll("button")
-        buttons.forEach((button) => {button.disabled = false})
-        
-        cbxOnOff.checked = true
-        lblOnOff.innerText = "On"
+        appIsOnElmentBehavior(true)
     } else { // off or undefined
-        exportBtn.disabled = true
-        clearBth.disabled = true
-
-        const buttons = ulEl.querySelectorAll("button")
-        buttons.forEach((button) => {
-            button.disabled = true
-        })
-
-        cbxOnOff.checked = false
-        lblOnOff.innerText = "Off"
+        appIsOnElmentBehavior(false)
     }
 })
 
@@ -43,22 +27,10 @@ cbxOnOff.addEventListener('change', function() {
     chrome.storage.local.get('state', function(data) {
         if (data.state === 'on') {
             chrome.storage.local.set({state: 'off'})
-            exportBtn.disabled = true
-            clearBth.disabled = true
-
-            const buttons = ulEl.querySelectorAll("button")
-            buttons.forEach((button) => {button.disabled = true})
-
-            lblOnOff.innerText = "Off"
+            appIsOnElmentBehavior(false)
         } else {
             chrome.storage.local.set({state: 'on'})
-            exportBtn.disabled = false
-            clearBth.disabled = false
-            
-            const buttons = ulEl.querySelectorAll("button")
-            buttons.forEach((button) => {button.disabled = false})
-
-            lblOnOff.innerText = "On"
+            appIsOnElmentBehavior(true)
         }
     })
 })
@@ -177,3 +149,18 @@ chrome.runtime.onConnect.addListener((port) => {
     // Handle disconnection
     port.onDisconnect.addListener(() => {})
 })
+
+
+/**
+ * When state is on or of those elements have to be enable or disable:
+ * exportBtn clearBth cbxOnOff lblOnOff
+ * @param {*} boolFlag 
+ */
+function appIsOnElmentBehavior(boolFlag){
+    exportBtn.disabled = !boolFlag
+    clearBth.disabled = !boolFlag
+    cbxOnOff.checked = boolFlag
+    lblOnOff.innerText = boolFlag ? "On" : "Off"
+    //const buttons = ulEl.querySelectorAll("button")
+    //buttons.forEach((button) => {button.disabled = !boolFlag})
+}

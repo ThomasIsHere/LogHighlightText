@@ -1,4 +1,4 @@
-import { saveFile } from "../utils-scripts/utils.mjs"
+import { saveFile, notesArrayToPrint } from "../utils-scripts/utils.mjs"
 
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
@@ -177,15 +177,3 @@ chrome.runtime.onConnect.addListener((port) => {
     // Handle disconnection
     port.onDisconnect.addListener(() => {})
 })
-
-
-function notesArrayToPrint(arrayJson){
-    let strToPrint = ""
-    for(let i=0; i<arrayJson.length; i++){
-        let siteName = arrayJson[i].url.split('/')[2]
-        strToPrint = strToPrint + siteName + '\n'
-        strToPrint = strToPrint + '-'.repeat(siteName.length) + '\n'
-        strToPrint = strToPrint + arrayJson[i].note + '\n\n'
-    }
-    return strToPrint
-}

@@ -1,3 +1,5 @@
+import { saveFile } from "../utils-scripts/utils.mjs"
+
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
 const exportBtn = document.getElementById("export-btn")
@@ -67,7 +69,7 @@ exportBtn.addEventListener("click", function(){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
             let date = new Date(Date.now())
-            strToPrint = notesArrayToPrint(JSON.parse(result.highlightNotes))
+            let strToPrint = notesArrayToPrint(JSON.parse(result.highlightNotes))
             saveFile(date.toLocaleDateString() + "_" + date.toLocaleTimeString() + "_notes.txt", strToPrint)
         }
     }) 
@@ -87,26 +89,6 @@ clearBth.addEventListener("click", function(){
 
     renderNoteList()  
 })
-
-
-/**
- * Download file in local
- * @param {string} filename 
- * @param {string} content 
- */
-function saveFile(filename, content) {
-    // Create a Blob object with the file content
-    const blob = new Blob([content], { type: 'text/plain' })
-    // Create a temporary link element
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    // Set the filename for the downloaded file
-    link.download = filename
-    // Programmatically click the link to trigger the download
-    link.click()
-    // Clean up the URL object
-    URL.revokeObjectURL(link.href)
-}
 
 
 /**
@@ -168,11 +150,11 @@ function renderNoteList(){
 }*/
 
 
-function sendMessageToServiceWorkerToRefreshNoteList(){
+/*function sendMessageToServiceWorkerToRefreshNoteList(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "refreshNoteList"})
     port.disconnect()
-}
+}*/
 
 
 /**

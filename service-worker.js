@@ -1,4 +1,4 @@
-import { Note } from './utils-scripts/utils.mjs'
+import { Note, generateUniqueId } from './utils-scripts/utils.mjs'
 
 // On installed set extension state value to off
 chrome.runtime.onInstalled.addListener(details => {
@@ -38,7 +38,7 @@ chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener((message) => {
         if (message.type === "saveNote") {
             try {
-                let newObjToSave = new Note(currentUrl, message.value)
+                let newObjToSave = new Note(generateUniqueId(), new Date,currentUrl, message.value)
                 arrayHighlightObj.push(newObjToSave)
                 saveInChromeStorage(arrayHighlightObj)
                 printDataFromStorage()

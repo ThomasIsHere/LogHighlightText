@@ -1,17 +1,17 @@
 /**
- * 
+ * Note
  */
 export class Note {
-    constructor(url, note) {
-        this.id = generateUniqueId()
-        this.date = new Date
+    constructor(id, date, url, note) {
+        this.id = id
+        this.date = date
         this.url = url
         this.note = note
     }
 
-    /*introduce() {
-        console.log(`Hello, my name is ${this.name}`);
-    }*/
+    getSiteName() {
+        return this.url.split('/')[2]
+    }
 }
 
 
@@ -37,16 +37,16 @@ export function saveFile(filename, content) {
 
 /**
  * Take an array with note objects and returns a string of notes to be export
- * @param {note} arrayJson 
+ * @param {Note[]} arrayNote 
  * @returns string strToPrint
  */
-export function notesArrayToPrint(arrayJson){
+export function notesArrayToPrint(arrayNote){
     let strToPrint = ""
-    for(let i=0; i<arrayJson.length; i++){
-        let siteName = arrayJson[i].url.split('/')[2]
-        strToPrint = strToPrint + siteName + '\n'
-        strToPrint = strToPrint + '-'.repeat(siteName.length) + '\n'
-        strToPrint = strToPrint + arrayJson[i].note + '\n\n'
+    for(let i=0; i<arrayNote.length; i++){
+        let currentNote = new Note(arrayNote[i].id, arrayNote[i].date, arrayNote[i].url, arrayNote[i].note)
+        strToPrint = strToPrint + currentNote.getSiteName() + '\n'
+        strToPrint = strToPrint + '-'.repeat(currentNote.getSiteName().length) + '\n'
+        strToPrint = strToPrint + currentNote.note + '\n\n'
     }
     return strToPrint
 }
@@ -56,7 +56,7 @@ export function notesArrayToPrint(arrayJson){
  * Manually generate unique id
  * @returns uniqueId
  */
-function generateUniqueId() {
+export function generateUniqueId() {
     const array = new Uint32Array(1)
     crypto.getRandomValues(array)
     const randomValue = array[0].toString(16)

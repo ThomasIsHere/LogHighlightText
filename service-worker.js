@@ -1,3 +1,5 @@
+import { Note } from './utils-scripts/utils.mjs'
+
 // On installed set extension state value to off
 chrome.runtime.onInstalled.addListener(details => {
     chrome.storage.local.set({state: 'off'})
@@ -36,14 +38,8 @@ chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener((message) => {
         if (message.type === "saveNote") {
             try {
-                let newObjToSave = {
-                    id:generateUniqueId(),
-                    date: new Date,
-                    url: currentUrl,
-                    note:message.value
-                }
+                let newObjToSave = new Note(currentUrl, message.value)
                 arrayHighlightObj.push(newObjToSave)
-                console.log(arrayHighlightObj)
                 saveInChromeStorage(arrayHighlightObj)
                 printDataFromStorage()
             } catch (error) {
@@ -80,20 +76,6 @@ function printDataFromStorage(){
             console.log("Retrieved value:", JSON.parse(result.highlightNotes))
         }
     })
-}
-
-
-/**
- * Manually generate unique id
- * @returns uniqueId
- */
-function generateUniqueId() {
-    const array = new Uint32Array(1)
-    crypto.getRandomValues(array)
-    const randomValue = array[0].toString(16)
-    const timestamp = Date.now().toString(16)
-    const uniqueId = `${randomValue}${timestamp}`
-    return uniqueId;
 }
 
 

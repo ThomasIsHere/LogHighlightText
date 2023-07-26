@@ -1,4 +1,21 @@
 /**
+ * 
+ */
+export class Note {
+    constructor(url, note) {
+        this.id = generateUniqueId()
+        this.date = new Date
+        this.url = url
+        this.note = note
+    }
+
+    /*introduce() {
+        console.log(`Hello, my name is ${this.name}`);
+    }*/
+}
+
+
+/**
  * Download file in local
  * @param {string} filename 
  * @param {string} content 
@@ -32,4 +49,18 @@ export function notesArrayToPrint(arrayJson){
         strToPrint = strToPrint + arrayJson[i].note + '\n\n'
     }
     return strToPrint
+}
+
+
+/**
+ * Manually generate unique id
+ * @returns uniqueId
+ */
+function generateUniqueId() {
+    const array = new Uint32Array(1)
+    crypto.getRandomValues(array)
+    const randomValue = array[0].toString(16)
+    const timestamp = Date.now().toString(16)
+    const uniqueId = `${randomValue}${timestamp}`
+    return uniqueId;
 }

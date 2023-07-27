@@ -1,4 +1,5 @@
 import { saveFile, notesArrayToPrint } from "../utils-scripts/utils.mjs"
+import { deleteOneNoteInStorage, saveAllNotesInChromeStorage } from "../utils-scripts/utils-storage.mjs"
 
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
@@ -72,6 +73,9 @@ function renderNoteList(){
             let arrayHighlightObj = JSON.parse(result.highlightNotes)
             counterEl.innerHTML = "Note(s) saved: " + arrayHighlightObj.length
 
+            // Empty ul before inserting li
+            ulEl.innerHTML = ''
+
             arrayHighlightObj.forEach(noteObj => {
                 let liEl = document.createElement("li")
                 liEl.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-start") //Boostrap li class
@@ -83,17 +87,19 @@ function renderNoteList(){
                 }
 
                 // Add delete button to li
-                /*const delBtnEl = document.createElement("button")
+                const delBtnEl = document.createElement("button")
                 delBtnEl.classList.add("btn", "btn-outline-danger", "btn-sm")
                 delBtnEl.appendChild(document.createTextNode("Del"))
 
                 delBtnEl.addEventListener("click", function(){
-                    deleteOneNote(noteObj.id)
+                    let newNotesArray = deleteOneNoteInStorage(noteObj.id, arrayHighlightObj)
+                    saveAllNotesInChromeStorage(newNotesArray)
+                    renderNoteList()
                     sendMessageToServiceWorkerToRefreshNoteList()
-                })*/
+                })
 
                 liEl.appendChild(document.createTextNode(text))
-                //liEl.appendChild(delBtnEl)
+                liEl.appendChild(delBtnEl)
 
                 ulEl.appendChild(liEl)
                 ulEl.style.visibility = "visible"
@@ -106,27 +112,11 @@ function renderNoteList(){
 }
 
 
-/*function deleteOneNote(noteId){
-    chrome.storage.local.get("highlightNotes", function(result) {
-        arrayHighlightObj = JSON.parse(result.highlightNotes)
-        console.log("BEFORE", arrayHighlightObj)
-        for (let i = 0; i < arrayHighlightObj.length; i++) {
-            if (arrayHighlightObj[i].id === noteId) {
-                console.log("TO DELETE", arrayHighlightObj[i])
-                arrayHighlightObj.splice(i, 1)
-                break
-            }
-        }
-        console.log("AFTER", arrayHighlightObj)
-    })
-}*/
-
-
-/*function sendMessageToServiceWorkerToRefreshNoteList(){
+function sendMessageToServiceWorkerToRefreshNoteList(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "refreshNoteList"})
     port.disconnect()
-}*/
+}
 
 
 /**
@@ -140,6 +130,7 @@ function sendMessageToEmptyNotesArrayToServiceWorker(){
 
 
 // Listener of message send from service-worker
+// May not be needed => comment
 chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener((message) => {
         if (message.type === "refreshPopup") {
@@ -153,7 +144,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
 /**
  * When state is on or of those elements have to be enable or disable:
- * exportBtn clearBth cbxOnOff lblOnOff
+ * exportBtn clearBth cbxOnOff lblOnOff ulEl
  * @param {*} boolFlag 
  */
 function appIsOnElmentBehavior(boolFlag){
@@ -161,6 +152,8 @@ function appIsOnElmentBehavior(boolFlag){
     clearBth.disabled = !boolFlag
     cbxOnOff.checked = boolFlag
     lblOnOff.innerText = boolFlag ? "On" : "Off"
-    //const buttons = ulEl.querySelectorAll("button")
-    //buttons.forEach((button) => {button.disabled = !boolFlag})
+    
+    // Buttons on ul
+    const buttons = ulEl.querySelectorAll("button")
+    buttons.forEach((button) => {button.disabled = !boolFlag})
 }

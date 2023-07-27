@@ -1,4 +1,6 @@
 import { Note, generateUniqueId } from './utils-scripts/utils.mjs'
+import { getArrayNotesFromLocalStorage, /*printNotesSavedInStorage,*/ saveAllNotesInChromeStorage } from './utils-scripts/utils-storage.mjs';
+
 
 // On installed set extension state value to off
 chrome.runtime.onInstalled.addListener(details => {
@@ -36,19 +38,22 @@ if(getArrayNotesFromLocalStorage()){
 // Listener of message note send from content-script
 chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener((message) => {
-        if (message.type === "saveNote") {
+        if (message.type === "saveNote") { // content-script
             try {
                 let newObjToSave = new Note(generateUniqueId(), new Date,currentUrl, message.value)
                 arrayHighlightObj.push(newObjToSave)
-                saveInChromeStorage(arrayHighlightObj)
-                printDataFromStorage()
+                saveAllNotesInChromeStorage(arrayHighlightObj)
+                sendRefreshMessageToPopup()
+                //printNotesSavedInStorage()
             } catch (error) {
                 console.log(error)
             }
-        } else if (message.type === "clearNotes") {
+        } else if (message.type === "clearNotes") { // popup
             arrayHighlightObj.length = 0
-        } else if (message.type === "refreshNoteList") {
-            // To be done
+        } else if (message.type === "refreshNoteList") { // popup
+            if(getArrayNotesFromLocalStorage()){
+                arrayHighlightObj = getArrayNotesFromLocalStorage()
+            }
         }
     })
     // Handle disconnection
@@ -56,44 +61,9 @@ chrome.runtime.onConnect.addListener((port) => {
 })
 
 
-/**
- * Save array in storage as JSON string
- * @param {array} value 
- */
-function saveInChromeStorage(value){
-    chrome.storage.local.set({ highlightNotes: JSON.stringify(value) }).then(() => {
-        sendRefreshMessageToPopup()
-    })
-}
-
-
-/**
- * Test function to print storage content
- */
-function printDataFromStorage(){
-    chrome.storage.local.get("highlightNotes", function(result) {
-        if(result.highlightNotes){
-            console.log("Retrieved value:", JSON.parse(result.highlightNotes))
-        }
-    })
-}
-
-
-/**
- * Returns array of notes from local storage
- * @returns arrayNotes
- */
-function getArrayNotesFromLocalStorage(){
-    chrome.storage.local.get("highlightNotes", function(result) {
-        if(result.highlightNotes){
-            return JSON.parse(result.highlightNotes)
-        }
-    })
-}
-
-
 // Send request to popup to refresh
 // To be used when note is created
+// May be not needed => comment
 function sendRefreshMessageToPopup(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "refreshPopup"})

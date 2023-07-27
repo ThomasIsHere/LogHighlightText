@@ -94,6 +94,7 @@ function renderNoteList(){
 
                 delBtnEl.addEventListener("click", function(){
                     let newNotesArray = deleteOneNoteInNotesArray(noteObj.id, arrayHighlightObj)
+                    sendMessageToEmptyNotesArrayToServiceWorker()
                     saveAllNotesInChromeStorage(newNotesArray)
                     renderNoteList()
                     sendMessageToServiceWorkerToRefreshNoteList()

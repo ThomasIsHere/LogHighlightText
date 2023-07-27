@@ -14,11 +14,16 @@ export function getArrayNotesFromLocalStorage(){
 /**
  * Test function to print storage content
  */
-export function printNotesSavedInStorage(){
+export function printNotesSavedInStorage(logText){
     chrome.storage.local.get("highlightNotes", function(result) {
         if(result.highlightNotes){
-            console.log("Retrieved value:", JSON.parse(result.highlightNotes))
+            console.log(logText + " - Retrieved value:", JSON.parse(result.highlightNotes))
+        }else{
+            console.log(logText + " - Storage is empty")
         }
+    })
+    chrome.storage.local.getBytesInUse(null, function(bytesInUse) {
+        console.log("Storage size: " + bytesInUse / 1000000 +" MB")
     })
 }
 

@@ -1,5 +1,6 @@
-import { saveFile, notesArrayToPrint } from "../utils-scripts/utils.mjs"
-import { deleteOneNoteInStorage, saveAllNotesInChromeStorage } from "../utils-scripts/utils-storage.mjs"
+import { saveFile, notesArrayToPrint, deleteOneNoteInNotesArray } from "../utils-scripts/utils.mjs"
+import { saveAllNotesInChromeStorage } from "../utils-scripts/utils-storage.mjs"
+
 
 const counterEl = document.getElementById("counter-el")
 const ulEl = document.getElementById("ul-el")
@@ -112,6 +113,9 @@ function renderNoteList(){
 }
 
 
+/**
+ * Request the sw to refresh his list of notes
+ */
 function sendMessageToServiceWorkerToRefreshNoteList(){
     const port = chrome.runtime.connect({ name: "logNotesPort" })
     port.postMessage({type : "refreshNoteList"})
@@ -150,6 +154,15 @@ chrome.runtime.onConnect.addListener((port) => {
 function appIsOnElmentBehavior(boolFlag){
     exportBtn.disabled = !boolFlag
     clearBth.disabled = !boolFlag
+
+    if(boolFlag) {
+        exportBtn.style.visibility = 'visible'
+        clearBth.style.visibility = 'visible'
+    } else {
+        exportBtn.style.visibility = 'hidden'
+        clearBth.style.visibility = 'hidden'
+    }
+
     cbxOnOff.checked = boolFlag
     lblOnOff.innerText = boolFlag ? "On" : "Off"
     

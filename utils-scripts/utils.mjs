@@ -64,3 +64,20 @@ export function generateUniqueId() {
     const uniqueId = `${randomValue}${timestamp}`
     return uniqueId;
 }
+
+
+/**
+ * Removes a specific note id from an array and returns a new array
+ * @param {*} noteId 
+ * @param {*} arrayNotes 
+ * @returns Array of notes minus the removed note
+ */
+export function deleteOneNoteInNotesArray(noteId, arrayNotes){
+    for (let i = 0; i < arrayNotes.length; i++) {
+        if (arrayNotes[i].id === noteId) {
+            arrayNotes.splice(i, 1)
+            break
+        }
+    }
+    return arrayNotes
+}

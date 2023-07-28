@@ -22,9 +22,6 @@ export function printNotesSavedInStorage(logText){
             console.log(logText + " - Storage is empty")
         }
     })
-    chrome.storage.local.getBytesInUse(null, function(bytesInUse) {
-        console.log("Storage size: " + bytesInUse / 1000000 +" MB")
-    })
 }
 
 
@@ -34,4 +31,15 @@ export function printNotesSavedInStorage(logText){
  */
 export function saveAllNotesInChromeStorage(value){
     chrome.storage.local.set({ highlightNotes: JSON.stringify(value) })
+}
+
+
+/**
+ * Gest storage space in MB
+ * @returns bytes in MB
+ */
+export function getStorageSpaceMb(){
+    chrome.storage.local.getBytesInUse(null, function(bytesInUse) {
+        return bytesInUse / 1000000
+    })
 }

@@ -37,7 +37,6 @@ if(getArrayNotesFromLocalStorage()){
 
 // Listener of message note send from content-script
 chrome.runtime.onConnect.addListener((port) => {
-    printNotesSavedInStorage('6')
     port.onMessage.addListener((message) => {
         if (message.type === "saveNote") { // content-script
             try {

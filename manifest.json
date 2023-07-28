@@ -1,13 +1,13 @@
 {
     "manifest_version": 3,
-    "name": "Quick Notes",
-    "description": "Select text on a website and save your selection as a note for your studies.",
+    "name": "Quick Notes - Beta version",
+    "description": "Save selected text on screen and export the selection as notes for your studies.",
     "icons": {
         "16": "icons/icon16-active.png",
         "48": "icons/icon48.png",
         "128": "icons/icon128.png"
       },
-    "version": "1.1",
+    "version": "1.2",
     "action": {
         "default_popup":"popup/popup.html"
     },

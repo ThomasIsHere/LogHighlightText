@@ -11,7 +11,7 @@
     "action": {
         "default_popup":"popup/popup.html"
     },
-    "permissions": ["tabs", "storage", "activeTab", "webNavigation"],
+    "permissions": ["storage", "activeTab", "webNavigation"],
     "background":{
         "service_worker":"service-worker.js",
         "type": "module"

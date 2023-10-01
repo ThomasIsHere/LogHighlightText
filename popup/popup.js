@@ -1,5 +1,5 @@
 import { saveFile, notesArrayToPrint, deleteOneNoteInNotesArray } from "../utils-scripts/utils.mjs"
-import { saveAllNotesInChromeStorage } from "../utils-scripts/utils-storage.mjs"
+import { saveAllNotesInChromeStorage, getArrayNotesFromLocalStorage } from "../utils-scripts/utils-storage.mjs"
 
 
 const counterEl = document.getElementById("counter-el")
@@ -94,10 +94,9 @@ function renderNoteList(){
 
                 delBtnEl.addEventListener("click", function(){
                     let newNotesArray = deleteOneNoteInNotesArray(noteObj.id, arrayHighlightObj)
-                    sendMessageToEmptyNotesArrayToServiceWorker()
                     saveAllNotesInChromeStorage(newNotesArray)
-                    renderNoteList()
                     sendMessageToServiceWorkerToRefreshNoteList()
+                    renderNoteList()
                 })
 
                 liEl.appendChild(document.createTextNode(text))

@@ -1,5 +1,5 @@
 import { Note, generateUniqueId } from './utils-scripts/utils.mjs'
-import { getArrayNotesFromLocalStorage, /*printNotesSavedInStorage,*/ saveAllNotesInChromeStorage } from './utils-scripts/utils-storage.mjs';
+import { getArrayNotesFromLocalStorage, saveAllNotesInChromeStorage } from './utils-scripts/utils-storage.mjs';
 
 
 // On installed set extension state value to off
